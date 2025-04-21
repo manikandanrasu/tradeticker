@@ -2,10 +2,12 @@ import os
 import datetime
 import smtplib
 
+from flask import jsonify
+
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
-from werkzeug.security import generate_password_hash, check_password_hash 
+from werkzeug.security import check_password_hash 
 
 from postgres_db.postgres_conn import user_registration_insert_db, user_login_db
 
@@ -58,8 +60,13 @@ def send_email(user_email):
         raise
 
 def user_registration_insert(username, email, password_hash):
-    userid=user_registration_insert_db(username, email, password_hash)
-    return userid
+    try:
+        response = user_registration_insert_db(username, email, password_hash)
+        return response
+    except Exception as e:
+        logger.error(f"Error in user_registration_insert: {str(e)}")
+        return jsonify({"error": "Internal server error during registration"}), 500
+
 
 def user_login(email,password):
      return user_login_db(email,password) 

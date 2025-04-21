@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 
+import requests
 from datetime import datetime, timedelta
 
 from stock_metrics import fetch_stock_data, get_stock_metrics
@@ -18,18 +19,50 @@ with st.sidebar:
     if auth_option == "Login":
         st.subheader("Login")
         username = st.text_input("Username")
-        password = st.text_input("Password")
+        password = st.text_input("Password", type="password")
         if st.button("Login"):
-            st.write("Processing login... (Handled in Flask backend)")
+            if username and password:
+                data = {
+                    "username": username,
+                    "password": password
+                }
+
+                response = requests.post("http://localhost:5000/login_user", json=data)
+
+                if response.status_code == 200:
+                    st.success("Login Successful!")
+                else:
+                    st.error(f"Login failed: {response.json().get('error')}")
+            else:
+                st.warning("Please enter both username and password.")
 
     elif auth_option == "Signup":
         st.subheader("Create an Account")
         new_username = st.text_input("Enter Username")
         email = st.text_input("Email")
-        passowrd  = st.text_input("Enter Password")
+        password = st.text_input("Enter Password", type="password")
+        
         if st.button("Sign Up"):
-            st.write("Processing signup... (Handled in Flask backend)")
+            if new_username and email and password:
+                data = {
+                    "username": new_username,
+                    "email": email,
+                    "password": password
+                }
 
+                try:
+                    response = requests.post("http://localhost:5000/signup", json=data)
+                    st.write("Raw Response:", response.text)
+
+                    if response.status_code == 200:
+                        st.success("User registered successfully!")
+                    else:
+                        error_msg = response.json().get('error', 'Unknown error occurred')
+                        st.error(f"Signup failed: {error_msg}")
+                except Exception as e:
+                    st.error(f"Request failed: {str(e)}")
+            else:
+                st.warning("All fields are required.")
 
 # Navigation Menu
 selected = option_menu(

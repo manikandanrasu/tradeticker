@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 
-from .registration_login import registration_login_bp
+from registration_login import registration_login_bp
 
 import models
 

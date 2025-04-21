@@ -29,7 +29,7 @@ def get_db_connection():
         raise
 
 def user_registration_insert_db(username, email, password_hash):
-    created_at=datetime.datetime.now()
+    created_at = datetime.datetime.now()
 
     try:
         # Step 1: Check if the email already exists
@@ -57,6 +57,8 @@ def user_registration_insert_db(username, email, password_hash):
                 user_id = cur.fetchone()[0]
                 conn.commit()
 
+                return jsonify({"message":"User registered successfully", "user_id":user_id}), 201
+
     except Exception as e:
         logger.error(f"Error during user registration insert: {str(e)}")
         raise
@@ -80,7 +82,7 @@ def user_login_db(email, password):
                 # Check validate password
                 if check_password_hash(stored_hash, password):
                     # Password is correct
-                    logger.info(f"User '{username}' (ID '{user_id}) logged in successfully ")
+                    logger.info(f"User '{username}' (ID '{user_id}') logged in successfully. ")
                     return jsonify({"message":"Login successfully!", "user_id":user_id, "username":username}), 200
                 else:
                     logger.error(f"Login failed: Incorrect password for email '{email}'.")
